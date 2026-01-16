@@ -24,7 +24,18 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Deploy to VPS
+      # 🔥 BƯỚC QUAN TRỌNG NHẤT
+      - name: Clean old files on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            rm -rf /home/nhatdev/apps/web/*
+
+      - name: Deploy new build to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
