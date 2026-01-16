@@ -1,4 +1,4 @@
-name: Deploy nhatdev.top
+name: Deploy React Vite to VPS
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -24,24 +24,12 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 🔥 BƯỚC QUAN TRỌNG NHẤT
-      - name: Clean old files on VPS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22
-          script: |
-            rm -rf /home/nhatdev/apps/web/*
-
-      - name: Deploy new build to VPS
+      - name: Deploy to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22
           source: "dist/*"
-          target: "/home/nhatdev/apps/web"
-          strip_components: 1
+          target: ${{ secrets.VPS_PATH }}
