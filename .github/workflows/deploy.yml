@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -23,35 +23,29 @@ jobs:
         run: |
           npm ci
           npm run build
-          echo "Build done"
+          echo "Build output:"
           ls -l dist
 
-      - name: Prepare VPS directory
+      # 🔥 XOÁ WEB CŨ TRƯỚC
+      - name: Clean old web on VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            mkdir -p ${{ secrets.VPS_PATH }}
+            rm -rf /home/nhatdev/apps/web/*
+            mkdir -p /home/nhatdev/apps/web
 
-      - name: Clean old files
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            rm -rf ${{ secrets.VPS_PATH }}/*
-
-      - name: Deploy dist content to VPS
+      # 🚀 COPY WEB MỚI
+      - name: Upload dist to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "dist/*"
-          target: ${{ secrets.VPS_PATH }}
+          target: "/home/nhatdev/apps/web"
           strip_components: 1
 
       - name: Reload Nginx
