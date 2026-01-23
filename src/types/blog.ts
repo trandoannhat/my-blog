@@ -9,7 +9,11 @@ export interface PostSummary {
   createdAt: string; // ISO Date string
   tags: string[];
 }
-
+// PostDetail sẽ lấy toàn bộ PostSummary và thêm 2 trường mới
+export interface PostDetail extends PostSummary {
+  content: string;
+  updatedAt?: string;
+}
 export interface PostDetail {
   id: number;
   title: string;

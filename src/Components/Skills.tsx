@@ -30,7 +30,7 @@ const Skills = () => {
                          bg-purple-50 dark:bg-zinc-900 
                          p-3 rounded-full flex items-center justify-center
                          border border-transparent dark:border-zinc-800 shadow-sm"
-              title={item.name} // Hiện tên kỹ năng khi hover (nếu item có name)
+              title={""} // Hiện tên kỹ năng khi hover (nếu item có name)
             >
               <img
                 src={item.icon}

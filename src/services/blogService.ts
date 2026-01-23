@@ -1,10 +1,14 @@
-import { MOCK_POSTS_SUMMARY, MOCK_POST_DETAIL } from "../data/mockData";
+// src/services/blogService.ts
+import { MOCK_POSTS } from "../data/mockData";
+// Sửa lỗi TS1484: Đảm bảo sử dụng 'import type' cho các định nghĩa kiểu
 import type { PostSummary, PostDetail } from "../types/blog";
 
-// Lấy danh sách bài viết
+// Lấy danh sách bài viết (Chỉ trả về thông tin tóm tắt)
 export const getPosts = async (): Promise<PostSummary[]> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
-  return MOCK_POSTS_SUMMARY;
+
+  // Trả về mảng dưới dạng PostSummary (ẩn content để tối ưu)
+  return MOCK_POSTS as PostSummary[];
 };
 
 // Lấy chi tiết bài viết theo Slug
@@ -13,13 +17,13 @@ export const getPostDetail = async (
 ): Promise<PostDetail | null> => {
   await new Promise((resolve) => setTimeout(resolve, 300));
 
-  // Sử dụng biến slug để tìm bài viết (Giả lập logic Backend)
-  // Nếu slug truyền vào khớp với slug trong Mock Data thì trả về bài viết đó
-  if (MOCK_POST_DETAIL.slug === slug) {
-    return MOCK_POST_DETAIL;
+  // Tìm kiếm linh hoạt trong mảng dữ liệu gốc
+  const post = MOCK_POSTS.find((p) => p.slug === slug);
+
+  if (!post) {
+    console.warn(`Không tìm thấy bài viết với slug: ${slug}`);
+    return null;
   }
 
-  // Nếu không tìm thấy (ví dụ slug sai), trả về null
-  console.warn(`Không tìm thấy bài viết với slug: ${slug}`);
-  return null;
+  return post;
 };
