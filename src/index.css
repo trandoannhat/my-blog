@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Định nghĩa variant dark cho Tailwind 4 để nhận diện class .dark trên thẻ html */
+@variant dark (&:where(.dark, .dark *));
+
 body {
   font-family: "Raleway", sans-serif;
+  /* Giúp chuyển màu mượt mà hơn */
+  @apply transition-colors duration-300;
 }

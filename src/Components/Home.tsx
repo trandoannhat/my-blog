@@ -1,97 +1,123 @@
-import { useEffect, useState } from "react"; // Thêm dòng này
-import { AppText } from "../Constants";
-import { homeImage } from "../assets";
-import Typewriter from "typewriter-effect";
-import axios from "axios"; // Thêm dòng này
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { getPosts } from "../services/blogService";
+import type { PostSummary } from "../types/blog";
 
 const Home: React.FC = () => {
-  // 1. Tạo state để lưu danh sách bài viết
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostSummary[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // 2. Gọi API khi trang web vừa load
   useEffect(() => {
-    axios
-      .get("https://api.nhatdev.top/api/Post")
-      .then((res) => {
-        setPosts(res.data);
-      })
-      .catch((err) => console.error("Lỗi lấy bài viết:", err));
+    getPosts().then((data) => {
+      const sorted = [...data].sort((a, b) =>
+        a.id === 3 ? -1 : b.id === 3 ? 1 : 0,
+      );
+      setPosts(sorted);
+      setLoading(false);
+    });
   }, []);
 
   return (
-    <div className="flex flex-col">
-      {/* PHẦN GIỚI THIỆU CỦA BẠN (GIỮ NGUYÊN) */}
-      <div className="flex p-[20px] md:px-20 justify-between flex-col md:flex-row">
-        <div className="flex w-full flex-row justify-end">
-          <div className="flex w-full flex-col items-start">
-            <h1 className="text-[35px] md:text-[40px] font-bold">
-              {AppText.hello}
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
+      <div className="max-w-7xl mx-auto p-[20px] md:px-20 py-16">
+        {/* Header Section - Chỉnh lại theo style cá nhân chuyên nghiệp */}
+        <div className="mb-20 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-black tracking-widest uppercase">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+            </span>
+            Available for projects
+          </div>
+
+          <div className="max-w-4xl">
+            <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter leading-[0.9]">
+              Building products,
+              <br />
+              <span className="text-purple-600">sharing knowledge.</span>
             </h1>
-
-            <div className="flex items-center flex-wrap">
-              <h1 className="text-[35px] md:text-[40px] font-bold mr-3">
-                {AppText.Iam}
-              </h1>
-
-              <div className="text-[35px] md:text-[40px] font-bold text-purple-600">
-                <Typewriter
-                  options={{
-                    strings: [
-                      AppText.TdnDev,
-                      AppText.SoftwareEngineer,
-                      AppText.BackendDeveloper,
-                      AppText.FrontendDeveloper,
-                    ],
-                    autoStart: true,
-                    loop: true,
-                  }}
-                />
-              </div>
-            </div>
-
-            <p className="my-5 text-gray-400 max-w-[520px] leading-relaxed">
-              {AppText.aboutMeDescripion}
+            <p className="text-slate-500 dark:text-slate-400 text-lg md:text-xl max-w-2xl font-medium leading-relaxed">
+              Xin chào, tôi là một Full-stack Developer. Đây là nơi tôi lưu trữ
+              hành trình lập trình, những giải pháp kỹ thuật thực chiến và những
+              bài học rút ra từ quá trình xây dựng sản phẩm.
             </p>
-
-            <button className="hover:z-50 transition-all duration-300 ease-in-out hover:scale-110 bg-purple-600 px-6 py-2 rounded-md text-white">
-              Tải CV
-            </button>
           </div>
         </div>
 
-        <div className="w-full flex justify-center mt-10 md:mt-0">
-          <img
-            src={homeImage}
-            alt="tdn dev"
-            className="w-[200px] md:w-[300px]"
-          />
-        </div>
-      </div>
+        {/* Grid List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {loading
+            ? [1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-[450px] bg-white dark:bg-slate-900/50 animate-pulse rounded-[2.5rem]"
+                />
+              ))
+            : posts.map((post, index) => {
+                const isFeatured = index === 0;
+                return (
+                  <article
+                    key={post.id}
+                    className={`group flex flex-col border rounded-[2.5rem] overflow-hidden transition-all duration-500 
+                      border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 
+                      hover:shadow-[0_20px_50px_rgba(147,51,234,0.15)] hover:-translate-y-2
+                      ${isFeatured ? "md:col-span-2 lg:col-span-3 lg:flex-row lg:h-[480px]" : "h-full"}`}
+                  >
+                    {/* Thumbnail */}
+                    <Link
+                      to={`/post/${post.slug}`}
+                      className={`block overflow-hidden ${isFeatured ? "lg:w-3/5 h-72 lg:h-full" : "aspect-[16/10] w-full"}`}
+                    >
+                      <img
+                        src={post.thumbnail}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </Link>
 
-      {/* --- PHẦN BÀI VIẾT MỚI (PHẦN KẾT NỐI VỚI ADMIN) --- */}
-      <div className="p-[20px] md:px-20 mt-10">
-        <h2 className="text-[30px] font-bold mb-5">Bài viết mới nhất</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post) => (
-            <div
-              key={post.id}
-              className="p-5 border rounded-lg hover:shadow-lg transition-all border-gray-700 bg-[#1e1e1e]"
-            >
-              <h3 className="text-purple-500 font-bold text-[20px] mb-2">
-                {post.title}
-              </h3>
-              <p className="text-gray-400 line-clamp-3 text-[14px]">
-                {post.content}
-              </p>
-              <button className="mt-4 text-purple-400 text-[14px] font-medium">
-                Đọc thêm...
-              </button>
-            </div>
-          ))}
+                    {/* Content Card */}
+                    <div
+                      className={`p-10 flex flex-col flex-1 ${isFeatured ? "lg:w-2/5 justify-center" : ""}`}
+                    >
+                      <div className="flex items-center gap-3 mb-6">
+                        <span className="px-4 py-1.5 bg-purple-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest">
+                          {isFeatured ? "🔥 Workshop" : post.categoryName}
+                        </span>
+                        <span className="text-xs text-slate-400 font-bold">
+                          {new Date(post.createdAt).toLocaleDateString("vi-VN")}
+                        </span>
+                      </div>
+
+                      <Link to={`/post/${post.slug}`}>
+                        <h3
+                          className={`font-black text-slate-900 dark:text-white mb-6 group-hover:text-purple-600 transition-colors
+                          ${isFeatured ? "text-3xl md:text-5xl tracking-tighter" : "text-2xl line-clamp-2"}`}
+                        >
+                          {post.title}
+                        </h3>
+                      </Link>
+
+                      <p
+                        className={`text-slate-600 dark:text-slate-400 leading-relaxed mb-10 ${isFeatured ? "text-lg line-clamp-3" : "text-sm line-clamp-3"}`}
+                      >
+                        {post.summary}
+                      </p>
+
+                      <Link
+                        to={`/post/${post.slug}`}
+                        className={`mt-auto font-black flex items-center gap-2 group/link ${isFeatured ? "text-purple-600 text-xl" : "text-slate-900 dark:text-white"}`}
+                      >
+                        {isFeatured ? "Tham gia Workshop ngay" : "Xem chi tiết"}
+                        <span className="transition-transform group-hover/link:translate-x-2">
+                          →
+                        </span>
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
         </div>
       </div>
     </div>
   );
 };
-
 export default Home;
